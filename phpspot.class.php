@@ -96,6 +96,7 @@ class phpspot{
 					$real_path = APP_ROOT . '/' . $v['real'] . substr($request_path, $alias_len);
 					if ($v['type'] == 'file'){
 						//pass
+						$real_path = APP_ROOT . '/' . $v['real'];
 					}else if (is_dir($real_path)){
 						$real_path .= '/' . self::$cfg['default_index'] . '.class.php';
 					}else{
