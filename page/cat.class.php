@@ -1,7 +1,7 @@
 <?php
 
-class page_index extends page_base{
-	
+class page_cat extends page_base{
+
 }
 
 ?>
