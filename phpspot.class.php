@@ -47,6 +47,7 @@ class phpspot{
 			return;
 		}
 		$page = __new__($class_name);
+		$page->suffix = $suffix;
 		$page->run();
 	}
 	
@@ -175,6 +176,8 @@ class phpspot{
  * page_bash 类, 负责参数传递, 和返回
  **/
 class page_base{
+	var $suffix = '';
+	
 	/**
 	 * page 类入口
 	 * @param
@@ -191,10 +194,22 @@ class page_base{
 		$this->$method();
 	}
 	
+	/**
+	 * get 方法虚函数
+	 * @param
+	 * @return
+	 * @author zhangwenjin
+	 **/
 	function get(){
 		$this->header_403('function get not found'); //forbidden
 	}
 	
+	/**
+	 * post 方法虚函数
+	 * @param
+	 * @return
+	 * @author zhangwenjin
+	 **/	
 	function post(){
 		$this->header_403('function get not found'); //forbidden
 	}
