@@ -46,7 +46,7 @@ class phpspot{
 			page_base::error_msg(sprintf('class "%s" is not found in "%s"', $class_name, $real_path));
 			return;
 		}
-		$page = new $class_name();
+		$page = __new__($class_name);
 		$page->run();
 	}
 	
@@ -246,7 +246,44 @@ class page_base{
 }
 
 
-
+/**
+ * 创建一个单例函数
+ * @param
+ * @return
+ * @author zhangwenjin
+ **/
+function __new__($class_name){
+	static $obj_pool = array();
+	
+	$argv = func_get_args();
+	$class_name = array_shift($argv);
+	if (empty($argv)){
+		//不带参数
+		$key = $class_name;
+	}else{
+		$key = $class_name . '_' . md5(var_export($argv, true));
+	}
+	
+	if (!isset($obj_pool[$key])){
+		if (!class_exists($class_name)){
+			$path = str_replace('_', '/', $class_name) . '.class.php';
+			if (is_file($path)){
+				require_once $path;
+			}else{
+				trigger_error(sprintf('"%s" can\'t found, please require it first!', $class_name));
+			}
+		}
+		
+		if (empty($argv)){
+			$obj_pool[$key] = new $class_name();
+		}else{
+			$reflection = new ReflectionClass($class_name);
+	        $obj_pool[$key] = call_user_func_array(array($reflection, 'newInstance'), $argv);
+		}
+	}
+	
+	return $obj_pool[$key];
+}
 
 
 
