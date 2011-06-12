@@ -1,6 +1,4 @@
 <?php
-if (!defined('APP_ROOT')){define('APP_ROOT', dirname(__FILE__));}
-define('FRAMEWORK', dirname(__FILE__));
 
 /* phpspot 转发路由 */
 class phpspot{
@@ -10,6 +8,16 @@ class phpspot{
 		'request_suffix' => array('html', 'htm', 'json'),
 		'alias'=>array(),
 		);
+	var $app_dir = '';
+	
+	function set_app_dir($dir){
+		if (!is_dir($dir)){
+			trigger_error(sprintf('dir "%s" is exist!', $dir));
+			return;
+		}
+		$dir = rtrim(realpath($dir), '/');
+		$this->app_dir = $dir;
+	}
 	
 	/**
 	 * 网站入口
@@ -65,7 +73,7 @@ class phpspot{
 			return false;
 		}
 		
-		$path = APP_ROOT . '/' . $to;
+		$path = $this->app_dir . '/' . $to;
 		if (is_dir($path)){
 			self::$cfg['alias'][] = array('alias'=> $from . '/' , 'real'=> $to . '/' , 'type'=>'dir');
 		}elseif(is_file($path)){
@@ -93,10 +101,10 @@ class phpspot{
 				$alias_len = strlen($v['alias']);
 				if (strncmp($test_request_path, $v['alias'], $alias_len) == 0){
 					//命中
-					$real_path = APP_ROOT . '/' . $v['real'] . substr($request_path, $alias_len);
+					$real_path = $this->app_dir . '/' . $v['real'] . substr($request_path, $alias_len);
 					if ($v['type'] == 'file'){
 						//pass
-						$real_path = APP_ROOT . '/' . $v['real'];
+						$real_path = $this->app_dir . '/' . $v['real'];
 					}else if (is_dir($real_path)){
 						$real_path .= '/' . self::$cfg['default_index'] . '.class.php';
 					}else{
@@ -107,7 +115,7 @@ class phpspot{
 			}
 		}
 		
-		$real_path = $request_path ?  APP_ROOT . '/page/' . $request_path : APP_ROOT . '/page';
+		$real_path = $request_path ?  $this->app_dir . '/page/' . $request_path : $this->app_dir . '/page';
 		if (is_dir($real_path)){
 			$real_path .= '/' . self::$cfg['default_index'] . '.class.php';
 		}else{
@@ -123,7 +131,7 @@ class phpspot{
 	 * @author zhangwenjin
 	 **/
 	function path2classname($path){
-		$class_name = trim(substr($path, strlen(APP_ROOT)), '/');
+		$class_name = trim(substr($path, strlen($this->app_dir)), '/');
 		$class_name = str_replace('/', '_', substr($class_name, 0, strlen($class_name) - strlen('.class.php')));
 		return $class_name;
 	}
@@ -226,9 +234,17 @@ class page_base{
 	static function get_request_path()
     {
 		$request_path = !empty($_SERVER['REDIRECT_SCRIPT_URL'])?$_SERVER['REDIRECT_SCRIPT_URL']:(!empty($_SERVER["PATH_INFO"])?$_SERVER["PATH_INFO"]:"");
+		//兼容nginx
+		if (empty($request_path) || $request_path == '/'){
+			if (!empty($_GET['__path__'])){
+				$request_path = $_GET['__path__'];
+			}
+		}
 		
 		return $request_path;
     }
 }
+
+
 
 ?>
