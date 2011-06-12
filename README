@@ -1,0 +1,32 @@
+phpspot 框架
+使用:
+index.php
+require('phpspot.class.php');
+$app = new phpspot();
+$app->set_app_dir(dirname(__FILE__));
+$app->alias('/vv/', '/page/admin'); //虚拟目录
+
+page/index.class.php
+class page_index extends page_base{
+    function get(){
+    }
+}
+
+特性：
+1. 每个page文件只提供一个访问方法，如page_index 类只提供get 和 post 方法对外访问, 兼容ngnix
+2. 提供虚拟目录功能支持
+
+Apache Rewrite:
+RewriteEngine   on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+
+ngnix rewrite:
+if (-f $request_filename) {
+	break;
+}
+if (-d $request_filename) {
+	break;
+}
+rewrite ^/(.*)$ /index.php?__path__=$1 last;
