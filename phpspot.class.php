@@ -4,6 +4,7 @@
 class phpspot{
 	static $cfg = array(
 		'default_index' => 'index', //默认执行文件
+		'default_page_dir' => 'page',
 		'script_suffix'=> '.php', //执行文件后缀
 		'request_suffix' => array('html', 'htm', 'json'),
 		'alias'=>array(),
@@ -116,7 +117,7 @@ class phpspot{
 			}
 		}
 		
-		$real_path = $request_path ?  $this->app_dir . '/page/' . $request_path : $this->app_dir . '/page';
+		$real_path = $request_path ?  $this->app_dir . '/' .self::$cfg['default_page_dir']. '/' . $request_path : $this->app_dir . '/'. self::$cfg['default_page_dir'];
 		if (is_dir($real_path)){
 			$real_path .= '/' . self::$cfg['default_index'] . '.class.php';
 		}else{
