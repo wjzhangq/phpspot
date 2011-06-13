@@ -31,7 +31,7 @@ class phpspot{
 
 		$real_path = $this->route_page_path($request_path);
 		if (!is_file($real_path)){
-			page_base::header_404(sprintf('"%s" in not found!', $real_path));
+			page_base::page_404(sprintf('"%s" in not found!', $real_path));
 			return;
 		}
 		
@@ -188,7 +188,7 @@ class page_base{
 	function run(){
 		$method = strtolower($_SERVER['REQUEST_METHOD']);
 		if (!method_exists($this, $method)){
-			$this->header_403(sprintf('method "%s" is not allow!', $method));
+			$this->page_403(sprintf('method "%s" is not allow!', $method));
 			return;
 		}
 		$this->$method();
@@ -201,7 +201,7 @@ class page_base{
 	 * @author zhangwenjin
 	 **/
 	function get(){
-		$this->header_403('function get not found'); //forbidden
+		$this->page_403('function get not found'); //forbidden
 	}
 	
 	/**
@@ -211,17 +211,17 @@ class page_base{
 	 * @author zhangwenjin
 	 **/	
 	function post(){
-		$this->header_403('function get not found'); //forbidden
+		$this->page_403('function get not found'); //forbidden
 	}
 	
-	static function header_404($msg=null){
+	static function page_404($msg=null){
 		header('HTTP/1.1 404 Not Found', true, 404);
 		if (!empty($msg)){
 			echo '<h2>' . $msg . '</h2>';
 		}
 	}
 	
-	static function header_403($msg=null){
+	static function page_403($msg=null){
 		header('HTTP/1.1 403 Forbidden', true, 403);
 		if (!empty($msg)){
 			echo '<h2>' . $msg . '</h2>';
@@ -234,7 +234,7 @@ class page_base{
 	 * @return
 	 * @author zhangwenjin
 	 **/
-	function header_302( $url = '')
+	function page_302( $url = '')
 	{
 		if ( $url == '' ) {
 			$url = $this->get_request_path();
@@ -242,7 +242,7 @@ class page_base{
 		header( 'Location: ' . $url, true, 302 );
 	}
 	
-	function error_msg($msg){
+	function page_error($msg){
 		echo '<h2>' . $msg . '</h2>';
 	}
 	
@@ -299,7 +299,4 @@ function __new__($class_name){
 	
 	return $obj_pool[$key];
 }
-
-
-
 ?>
