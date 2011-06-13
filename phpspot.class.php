@@ -44,7 +44,7 @@ class phpspot{
 		require_once $real_path;
 		$class_name = $this->path2classname($real_path);
 		if (!class_exists($class_name)){
-			page_base::error_msg(sprintf('class "%s" is not found in "%s"', $class_name, $real_path));
+			page_base::page_error(sprintf('class "%s" is not found in "%s"', $class_name, $real_path));
 			return;
 		}
 		$page = __new__($class_name);
