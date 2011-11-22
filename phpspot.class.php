@@ -8,6 +8,7 @@ class phpspot{
 		'script_suffix'=> '.php', //执行文件后缀
 		'request_suffix' => array('html', 'htm', 'json'),
 		'alias'=>array(),
+		'rewrite'=>array('pattern'=>array(), 'replacement'=>array()),
 		);
 	var $app_dir = '';
 	
@@ -28,8 +29,12 @@ class phpspot{
 	 **/
 	function run(){
 		$request_path = page_base::get_request_path();
+		if ($request_path != '/' && $this->rewrite['pattern']){
+		    $request_path = preg_replace($this->rewrite['pattern'], $this->rewrite['replacement']);
+		    print_r($request_path);
+		}
+		
 		list($request_path, $suffix) = $this->split_suffix($request_path);
-
 		$real_path = $this->route_page_path($request_path);
 		if (!is_file($real_path)){
 			page_base::page_404(sprintf('"%s" in not found!', $real_path));
@@ -85,6 +90,19 @@ class phpspot{
 			return false;
 		}
 		
+		return true;
+	}
+	
+	/**
+	 * 虚拟目录
+	 * @param
+	 * @return
+	 * @author zhangwenjin
+	 **/
+	function rewrite($pattern, $replacement){
+	    $this->rewrite['pattern'][] = $pattern;
+	    $this->rewrite['replacement'][] = $replacement;
+	    		
 		return true;
 	}
 	
