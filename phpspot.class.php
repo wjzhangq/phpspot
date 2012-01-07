@@ -12,7 +12,7 @@ class phpspot{
 		);
 	var $app_dir = '';
 	
-	function set_app_dir($dir){
+	public function set_app_dir($dir){
 		if (!is_dir($dir)){
 			trigger_error(sprintf('dir "%s" is exist!', $dir));
 			return;
@@ -21,18 +21,22 @@ class phpspot{
 		$this->app_dir = $dir;
 	}
 	
+	public function get_request_path(){
+	    return page_base::get_request_path();
+	}
+	
+	
+	
 	/**
 	 * 网站入口
 	 * @param
 	 * @return
 	 * @author zhangwenjin
 	 **/
-	function run(){
-		$request_path = page_base::get_request_path();
-		if ($request_path != '/' && $this->rewrite['pattern']){
-		    $request_path = preg_replace($this->rewrite['pattern'], $this->rewrite['replacement']);
-		    print_r($request_path);
-		}
+	function run($request_path=null){
+	    if (empty($request_path)){
+	        $request_path = $this->get_request_path();
+	    }
 		
 		list($request_path, $suffix) = $this->split_suffix($request_path);
 		$real_path = $this->route_page_path($request_path);
@@ -57,55 +61,7 @@ class phpspot{
 		$page->run();
 	}
 	
-	/**
-	 * 虚拟目录
-	 * @param
-	 * @return
-	 * @author zhangwenjin
-	 **/
-	function alias($from, $to){
-		$from = trim($from, '/');
-		$to = trim($to, '/');
-		
-		$from_len = strlen($from);
-		$to_len = strlen($to);
-		
-		$safe_str = 'abcdefghijklmnopqrstuvwxyz0123456789/.';
-		if ($from_len == 0 || $from_len != strspn($from, $safe_str)){
-			trigger_error(sprintf('"%s" is invalid charset!', $from));
-			return false;
-		}
-		if ($to_len ==0 || $to_len != strspn($to, $safe_str)){
-			trigger_error(sprintf('"%s" is invalid charset!', $to));
-			return false;
-		}
-		
-		$path = $this->app_dir . '/' . $to;
-		if (is_dir($path)){
-			self::$cfg['alias'][] = array('alias'=> $from . '/' , 'real'=> $to . '/' , 'type'=>'dir');
-		}elseif(is_file($path)){
-			self::$cfg['alias'][] = array('alias'=>  $from . '/' , 'real'=>$to , 'type'=>'file');
-		}else{
-			trigger_error(sprintf('"%s" is invalid dir or file!', $to));
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * 虚拟目录
-	 * @param
-	 * @return
-	 * @author zhangwenjin
-	 **/
-	function rewrite($pattern, $replacement){
-	    $this->rewrite['pattern'][] = $pattern;
-	    $this->rewrite['replacement'][] = $replacement;
-	    		
-		return true;
-	}
-	
+
 	/**
 	 * 路由定向
 	 * @param
@@ -114,26 +70,6 @@ class phpspot{
 	 **/
 	function route_page_path($request_path){
 		$request_path = trim($request_path, '/');
-		if ($request_path){
-			//check alias
-			$test_request_path = $request_path . '/';
-			foreach(self::$cfg['alias'] as $v){
-				$alias_len = strlen($v['alias']);
-				if (strncmp($test_request_path, $v['alias'], $alias_len) == 0){
-					//命中
-					$real_path = $this->app_dir . '/' . $v['real'] . substr($request_path, $alias_len);
-					if ($v['type'] == 'file'){
-						//pass
-						$real_path = $this->app_dir . '/' . $v['real'];
-					}else if (is_dir($real_path)){
-						$real_path .= '/' . self::$cfg['default_index'] . '.class.php';
-					}else{
-						$real_path .= '.class.php';
-					}
-					return $real_path;
-				}
-			}
-		}
 		
 		$real_path = $request_path ?  $this->app_dir . '/' .self::$cfg['default_page_dir']. '/' . $request_path : $this->app_dir . '/'. self::$cfg['default_page_dir'];
 		if (is_dir($real_path)){
